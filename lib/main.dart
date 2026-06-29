@@ -4,14 +4,12 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'dart:async';
 
 void main() async {
-  // Asegura la inicialización de los bindings nativos antes del arranque asíncrono
   WidgetsFlutterBinding.ensureInitialized();
   
-  // Inicialización de la infraestructura centralizada de base de datos distribuidas
-  // Nota: Reemplaza la clave anónima ficticia por tu 'sb_publishable_...' real obtenida de API Keys.
+  // Inicialización de la infraestructura de Supabase
   await Supabase.initialize(
     url: 'https://rvkkdqamlwximwwmlmic.supabase.co',
-    anonKey: 'sb_publishable_0Xf64E15yFuvM5BnxT_ang_5iKspCn3', 
+    anonKey: 'sb_publishable_0Xf64E15yFuvM5BnxT_ang_5iKspCn3', // <-- Pon tu clave sb_publishable aquí
   );
 
   runApp(const CarBrainApp());
@@ -63,7 +61,6 @@ class _MainDashboardState extends State<MainDashboard> with SingleTickerProvider
   late TabController _tabController;
   final List<Map<String, dynamic>> _historyList = [];
   
-  // Controladores de memoria persistente para el Formulario Avanzado
   final _brandCtrl = TextEditingController();
   final _modelCtrl = TextEditingController();
   final _yearCtrl = TextEditingController();
@@ -91,7 +88,6 @@ class _MainDashboardState extends State<MainDashboard> with SingleTickerProvider
     super.dispose();
   }
 
-  // Despliegue de SnackBars informativos globales
   void _showNotification(String msg, {bool isError = false}) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -103,14 +99,12 @@ class _MainDashboardState extends State<MainDashboard> with SingleTickerProvider
     );
   }
 
-  // Copia segura de datos formateados al portapapeles nativo
   void _exportReportToClipboard(String reportText) {
     if (reportText.isEmpty) return;
     Clipboard.setData(ClipboardData(text: reportText));
     _showNotification("📋 Informe de diagnóstico copiado al portapapeles de forma exitosa.");
   }
 
-  // Núcleo de Simulación y Persistencia de Orquestación de Inteligencia Artificial Automotriz
   Future<void> _processVehicleDiagnostics({
     required String brand,
     required String model,
@@ -126,25 +120,21 @@ class _MainDashboardState extends State<MainDashboard> with SingleTickerProvider
     final String completeVehicleMetadata = "$brand $model ($year) - $engine";
 
     try {
-      // Inserción transaccional asíncrona dentro del pool de esquemas de Supabase
       await Supabase.instance.client.from('scans').insert({
         'vehicle_info': completeVehicleMetadata,
         'issues': inputSymptoms,
         'created_at': DateTime.now().toIso8601String(),
       });
     } catch (dbError) {
-      // Control de excepciones silencioso/asistido para evitar bloqueos en entornos sin migraciones creadas
       debugPrint("Supabase Integration Log: $dbError");
     }
 
-    // Retardo síncrono controlado que emula la latencia de procesamiento de la API de IA
     await Future.delayed(const Duration(milliseconds: 2500));
 
     String temporaryReport = "";
     String computedSeverity = "Bajo";
     final normalizedInput = inputSymptoms.toLowerCase();
 
-    // Árbol de decisión analítico cruzado (Cross-Fault Interconnected Reasoning)
     if ((normalizedInput.contains('aceite') || normalizedInput.contains('fuga')) && 
         (normalizedInput.contains('emisiones') || normalizedInput.contains('p0170') || normalizedInput.contains('p0171'))) {
       computedSeverity = "Alto";
@@ -194,7 +184,6 @@ class _MainDashboardState extends State<MainDashboard> with SingleTickerProvider
       _aiReportOutput = temporaryReport;
       _currentSeverityLevel = computedSeverity;
       
-      // Alimentación en tiempo de ejecución de la Ficha Clínica (Historial sin recarga)
       _historyList.insert(0, {
         'vehicle': '$brand $model ($year)',
         'issues': inputSymptoms,
@@ -215,7 +204,7 @@ class _MainDashboardState extends State<MainDashboard> with SingleTickerProvider
             RichText(
               text: const TextSpan(
                 text: 'CarBrain',
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: Colors.white, fontFamily: 'Roboto'),
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: Colors.white),
                 children: [
                   TextSpan(text: ' PRO', style: TextStyle(color: Color(0xFF00E676), fontSize: 14, fontWeight: FontWeight.w500)),
                 ],
@@ -247,7 +236,6 @@ class _MainDashboardState extends State<MainDashboard> with SingleTickerProvider
     );
   }
 
-  // PESTAÑA 1: BUSCADOR MANUAL MULTI-FALLO
   Widget _buildBuscadorManualTab() {
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
@@ -331,7 +319,6 @@ class _MainDashboardState extends State<MainDashboard> with SingleTickerProvider
     );
   }
 
-  // PESTAÑA 2: FLUJO DE ENTRADA OBD-II SERIAL
   Widget _buildObdTab() {
     return Padding(
       padding: const EdgeInsets.all(20.0),
@@ -347,7 +334,7 @@ class _MainDashboardState extends State<MainDashboard> with SingleTickerProvider
           const SizedBox(height: 10),
           const Text(
             "Escucha activa del puerto serie UART a través del adaptador inalámbrico ELM327. Al detectar tramas de datos corruptas, los códigos DTC internacionales se volcarán automáticamente en la base de datos distribuida.",
-            textAlign: Center,
+            textAlign: TextAlign.center, // <-- CORREGIDO: Sintaxis nativa de alineación
             style: TextStyle(color: Colors.grey, height: 1.4, fontSize: 14),
           ),
           const SizedBox(height: 30),
@@ -411,7 +398,6 @@ class _MainDashboardState extends State<MainDashboard> with SingleTickerProvider
     );
   }
 
-  // PESTAÑA 3: HISTORIAL CLÍNICO (FICHA DE RECONSULTA RÁPIDA)
   Widget _buildHistorialTab() {
     if (_historyList.isEmpty) {
       return const Center(
@@ -433,7 +419,7 @@ class _MainDashboardState extends State<MainDashboard> with SingleTickerProvider
 
         return Card(
           color: const Color(0xFF1A1D24),
-          margin: const EdgeInsets.bottom(12),
+          margin: const EdgeInsets.only(bottom: 12), // <-- CORREGIDO: Constructor correcto para márgenes inferiores
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           child: ListTile(
             contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -447,7 +433,7 @@ class _MainDashboardState extends State<MainDashboard> with SingleTickerProvider
               decoration: BoxDecoration(
                 color: alertColor.withOpacity(0.12),
                 borderRadius: BorderRadius.circular(6),
-                border: Border.solidWithHole(width: 1, color: alertColor),
+                border: Border.all(width: 1, color: alertColor), // <-- CORREGIDO: Borde estándar nativo de Flutter
               ),
               child: Text(
                 currentElement['severity'],
@@ -467,7 +453,6 @@ class _MainDashboardState extends State<MainDashboard> with SingleTickerProvider
     );
   }
 
-  // COMPONENTE: RENDERIZADOR DE CUADROS DE TEXTO ESTILIZADOS
   Widget _buildInputFormField(
     TextEditingController controller, 
     String placeholder, 
@@ -495,7 +480,6 @@ class _MainDashboardState extends State<MainDashboard> with SingleTickerProvider
     );
   }
 
-  // COMPONENTE: INFORME TÉCNICO DETALLADO EMITIDO POR LA IA
   Widget _renderReportWidget() {
     Color interfaceColor = const Color(0xFF00D2FF);
     if (_currentSeverityLevel == "Alto") interfaceColor = const Color(0xFFFF5252);
@@ -514,7 +498,7 @@ class _MainDashboardState extends State<MainDashboard> with SingleTickerProvider
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
-              mainAxisAlignment: MainAxisAlignment.between,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween, // <-- CORREGIDO: Alineación estándar de Material
               children: [
                 Row(
                   children: [
@@ -539,7 +523,7 @@ class _MainDashboardState extends State<MainDashboard> with SingleTickerProvider
             ),
             Text(
               _aiReportOutput,
-              style: const TextStyle(fontSize: 14, height: 1.5, color: Colors.white70, fontFamily: 'Mono'),
+              style: const TextStyle(fontSize: 14, height: 1.5, color: Colors.white70),
             ),
           ],
         ),
@@ -547,7 +531,6 @@ class _MainDashboardState extends State<MainDashboard> with SingleTickerProvider
     );
   }
 
-  // COMPONENTE: DICCIONARIO INTERNO INTEGRADO EXPRESS
   Widget _renderDtcStaticDictionary() {
     return Card(
       color: const Color(0xFF1A1D24),
