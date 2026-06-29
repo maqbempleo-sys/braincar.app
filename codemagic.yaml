@@ -1,0 +1,25 @@
+workflows:
+  default-workflow:
+    name: CarBrain Android Build
+    max_build_duration: 60
+    instance_type: mac_mini_m1
+    stage_type: mobile
+    triggering:
+      events:
+        - push
+    scripts:
+      - name: Forzar creación de proyecto Flutter Android Moderno
+        script: |
+          rm -rf android
+          flutter create . --platforms=android --org com.carbrain
+      - name: Descargar dependencias del proyecto
+        script: |
+          flutter packages pub get
+    build:
+      android: apk
+    artifacts:
+      - build/app/outputs/flutter-apk/*.apk
+    publishing:
+      email:
+        recipients:
+          - maqbempleo@gmail.com
